@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МояКойка — Аренда общежитий в Калининградской области</title>
+    <link rel="preload" href="style.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <style>
+        #loading-screen {
+            position: fixed; inset: 0; background: #F9FAFB; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity .3s ease;
+        }
+        [data-theme="dark"] #loading-screen { background: #1A1D24; }
+        #loading-screen .spinner {
+            width: 48px; height: 48px; border: 4px solid #E5E7EB;
+            border-top-color: #3B82F6; border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-screen p { margin-top: 16px; color: #6B7280; font-size: .9375rem; }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <div class="spinner"></div>
+        <p>Загрузка МояКойка...</p>
+    </div>
+
+    <!-- Тестовый режим -->
+    <div id="test-mode-modal" class="modal-overlay">
+    <div class="modal-box">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem;">🔧</div>
+        <h3>Тестовый режим</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">
+            Сайт МояКойка находится в тестовом режиме.<br>
+            Некоторые функции могут быть недоступны.<br>
+            Спасибо за понимание!
+        </p>
+        <button class="btn-primary btn-block" onclick="dismissTestMode()">Понятно, продолжить</button>
+        <p style="margin-top: 16px; font-size: 0.875rem; color: var(--text-secondary);">или нажмите в любое место экрана</p>
+    </div>
+</div>
+
+    <!-- Уведомления -->
+    <div id="notifications-panel" class="notifications-panel hidden">
+        <div class="notifications-header">
+            <h4>Уведомления</h4>
+            <button onclick="clearAllNotifications()" class="btn-text">Очистить</button>
+        </div>
+        <div id="notifications-list" class="notifications-list"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="container header-content">
+            <a href="#home" class="logo">
+                <i class="fa-solid fa-bed"></i>
+                <span>МояКойка</span>
+            </a>
+            <nav class="main-nav" id="main-nav">
+                <a href="#home" class="nav-link">Главная</a>
+                <a href="#search" class="nav-link">Поиск</a>
+                <a href="#favorites" class="nav-link tenant-only hidden">Избранное</a>
+                <a href="#my-room" class="nav-link tenant-only hidden">Моя комната</a>
+                <a href="#my-ads" class="nav-link landlord-only hidden">Мои объявления</a>
+                <a href="#chats" class="nav-link">Чаты</a>
+                <a href="#moderation" class="nav-link moderator-only hidden">Модерация</a>
+            </nav>
+            <div class="header-actions">
+                <button id="theme-toggle" class="icon-btn" title="Сменить тему">
+                    <i class="fa-solid fa-sun" id="theme-icon"></i>
+                </button>
+                <button id="notif-btn" class="icon-btn relative" title="Уведомления" onclick="toggleNotifications()">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="notif-badge" class="badge hidden">0</span>
+                </button>
+                <div id="auth-buttons">
+                    <a href="#login" class="btn-outline">Войти</a>
+                    <a href="#register" class="btn-primary">Регистрация</a>
+                </div>
+                <div id="user-menu" class="user-menu hidden">
+                    <img id="header-avatar" src="" alt="" class="avatar-small" onclick="toggleDropdown()">
+                    <div id="dropdown-menu" class="dropdown hidden">
+                        <a href="#profile"><i class="fa-solid fa-user"></i> Профиль</a>
+                        <a href="#settings"><i class="fa-solid fa-gear"></i> Настройки</a>
+                        <a href="#identity" class="tenant-only landlord-only"><i class="fa-solid fa-id-card"></i> Верификация</a>
+                        <a href="#friends" class="tenant-only"><i class="fa-solid fa-user-group"></i> Друзья</a>
+                        <a href="#find-friends"><i class="fa-solid fa-magnifying-glass"></i>Поиск друзей</a>
+                       <a href="#friend-requests" style="justify-content: space-between;">
+                       <span style="display: flex; align-items: center; gap: 12px;">
+                       <i class="fa-solid fa-user-plus"></i>Заявки в друзья
+                       </span>
+                       <span class="badge hidden" id="friend-request-badge" style="position: static; margin: 0;">0</span>
+                       </a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Выйти</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="app" class="container"></main>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal-overlay hidden" style="z-index: 1100;">
+        <div class="modal-box" style="text-align: left; max-width: 400px;">
+            <h3 id="confirm-title" style="margin-bottom: 8px;">Подтвердите действие</h3>
+            <p id="confirm-message" style="color: var(--text-secondary); margin-bottom: 24px;"></p>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-outline btn-block" onclick="closeConfirm()">Отмена</button>
+                <button class="btn-primary btn-block" id="confirm-yes-btn" style="background: var(--danger);">Да, удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js" defer></script>
+    <script src="auth.js" defer></script>
+    <script src="router.js" defer></script>
+    <script src="app.js" defer></script>
+</body>
+</html>
