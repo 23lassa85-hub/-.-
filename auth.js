@@ -56,7 +56,7 @@ function logout() {
 //    Пример: https://ваш-ник.github.io/мой-репозиторий/
 // 4. Загрузите обновлённый auth.js на хостинг
 // Если VK_APP_ID оставить пустым — будет работать демо-вход
-const VK_APP_ID = '';
+const VK_APP_ID = '54651611';
 
 function initVKOAuth() {
     // Если в URL есть access_token от VK — обрабатываем callback
